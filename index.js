@@ -106,7 +106,7 @@ apiRouter.post('/login', async (req, res) => {
             maxAge: 3600000       // Время жизни 1 час
         });
 
-        const message = createQueryMessageString('👋 Добро пожаловать в систему', `Рады вас видеть, ${ profileData[0].fullname}.\nОпубликовать отчетность или посмотреть отчеты можно в разделе "отчеты"`);
+        const message = createQueryMessageString('👋 Добро пожаловать в систему', `Рады вас видеть, ${ profileData[0].fullname}.\nСделать публикацию можно в разделе "Публикации"`);
         res.status(200).redirect(`/index.html?${message}`);
     }
     catch(err){
@@ -192,7 +192,7 @@ apiRouter.post('/profile', upload.single('profile-img'), async (req, res) => {
         });
 
         //отправляем сообщение успеха
-        const message = createQueryMessageString('Новый профиль успешно создан ✔️', `Рады вас видеть, ${formData.fullname}.\nОпубликовать отчетность или посмотреть отчеты можно в разделе "отчеты"`);
+        const message = createQueryMessageString('Новый профиль успешно создан ✔️', `Рады вас видеть, ${formData.fullname}.\nСделать публикацию можно в разделе "Публикации"`);
         res.status(200).redirect(`/index.html?${message}`);
     }
     //Обрабатываем ошибки
@@ -215,13 +215,13 @@ apiRouter.post('/report', cookiesMiddleware, upload.single('pdf-file'), async (r
     try{
         //проверяем поля формы отчета
         if(!checkReportInputs(formData)){
-            const message = createQueryMessageString('Ошибка', 'Не все поля отчета заполнены');
+            const message = createQueryMessageString('Ошибка', 'Не все поля публикации заполнены');
             return res.status(400).redirect(`/pages/reports.html?${message}`);
         }
 
         //проверяем наличие файла отчета
         if(!req.file){
-            const message = createQueryMessageString('Ошибка', 'Файл отчета не выбран');
+            const message = createQueryMessageString('Ошибка', 'Файл публикации не выбран');
             return res.status(400).redirect(`/pages/reports.html?${message}`);
         }
 
@@ -237,7 +237,7 @@ apiRouter.post('/report', cookiesMiddleware, upload.single('pdf-file'), async (r
         //Сохраняем pdf файл с названием temp в output
         await fs.promises.rename(tempPath, outputPath);
 
-        const message = createQueryMessageString('Успешно 🎉', `Отчет "${formData.title}" успешно опубликован`);
+        const message = createQueryMessageString('Успешно 🎉', `Публикация "${formData.title}" успешно выполнена`);
         res.status(200).redirect(`/pages/reports.html?${message}`);
     }
     catch(err){
@@ -286,7 +286,7 @@ apiRouter.get('/reports/:id', cookiesMiddlewareAPI, async (req, res) => {
 
     try{
         if(isNaN(reportId) || reportId <= 0){
-            const errorMessage = createQueryMessageString('🐦‍⬛ Отчет не найден', 'Возможно он был удален или не существует');
+            const errorMessage = createQueryMessageString('🐦‍⬛ Публикация не найдена', 'Возможно она была удалена или не существует');
             return res.status(404).json({redirect: `/pages/notfound.html?${errorMessage}`});
         }
 
@@ -299,7 +299,7 @@ apiRouter.get('/reports/:id', cookiesMiddlewareAPI, async (req, res) => {
         const reportItem = await report.select([], { id: reportId }, profileJoinTable);
 
         if(!reportItem.length){
-            const errorMessage = createQueryMessageString('🐦‍⬛ Отчет не найден', 'Возможно он был удален или не существует')
+            const errorMessage = createQueryMessageString('🐦‍⬛ Публикация не найдена', 'Возможно она была удалена или не существует');
             return res.status(404).json({redirect: `/pages/notfound.html?${errorMessage}`});
         }
 
